@@ -9,6 +9,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
   ChevronUp,
   ChevronDown,
   ChevronLeft,
@@ -20,6 +27,7 @@ import {
   X,
   Copy,
 } from "lucide-react";
+import { toast } from "sonner";
 
 const Page = () => {
   const [settings, setSettings] = useState({
@@ -133,6 +141,9 @@ const Page = () => {
     handleSettingChange("colors", newColors);
   };
 
+  const [exportedComponent, setExportedComponent] = useState("");
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
   const generateReactComponent = () => {
     const componentCode = `
   import React from 'react';
@@ -187,18 +198,13 @@ const Page = () => {
     return componentCode.trim();
   };
 
-  const [exportedComponent, setExportedComponent] = useState("");
-
   const exportReactComponent = () => {
     const componentCode = generateReactComponent();
     setExportedComponent(componentCode);
+    setIsDialogOpen(true);
   };
 
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(exportedComponent).then(() => {
-      alert("Component code copied to clipboard!");
-    });
-  };
+  const copyToClipboard = () => {};
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center relative p-4 overflow-hidden">
@@ -252,7 +258,7 @@ const Page = () => {
         </g>
       </svg>
 
-      <Card className="z-10 bg-white bg-opacity-80 p-6 rounded-lg shadow-lg max-w-screen-sm w-full backdrop-blur-sm">
+      <Card className="z-10 bg-white bg-opacity-80 p-6 rounded-lg shadow-lg max-w-md w-full backdrop-blur-sm">
         <h1 className="text-2xl font-bold mb-4 text-center">
           Animated SVG Background Generator
         </h1>
@@ -263,6 +269,7 @@ const Page = () => {
             <TabsTrigger value="position">Position</TabsTrigger>
             <TabsTrigger value="export">Export</TabsTrigger>
           </TabsList>
+
           <TabsContent value="shape">
             <CardContent className="space-y-4">
               <div>
@@ -370,6 +377,7 @@ const Page = () => {
               </div>
             </CardContent>
           </TabsContent>
+
           <TabsContent value="effects">
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
@@ -411,6 +419,7 @@ const Page = () => {
               )}
             </CardContent>
           </TabsContent>
+
           <TabsContent value="position">
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
@@ -502,38 +511,59 @@ const Page = () => {
               </div>
             </CardContent>
           </TabsContent>
+
           <TabsContent value="export">
             <CardContent className="space-y-4">
-              <div className="flex justify-center space-x-2">
+              <div className="flex justify-center">
                 <Button
                   onClick={exportReactComponent}
                   className="flex items-center space-x-2"
                 >
                   <Download size={16} />
-                  <span>Generate React Component</span>
+                  <span>Export React Component</span>
                 </Button>
-                {exportedComponent && (
-                  <Button
-                    onClick={copyToClipboard}
-                    className="flex items-center space-x-2"
-                  >
-                    <Copy size={16} />
-                    <span>Copy to Clipboard</span>
-                  </Button>
-                )}
               </div>
-              {exportedComponent && (
-                <div className="mt-4">
-                  <Label>Generated React Component:</Label>
-                  <pre className="bg-gray-100 p-4 rounded-md overflow-x-auto">
-                    <code>{exportedComponent}</code>
-                  </pre>
-                </div>
-              )}
+              <p className="text-sm text-center text-gray-600">
+                Click the button above to generate and view the React component
+                code.
+              </p>
             </CardContent>
           </TabsContent>
         </Tabs>
       </Card>
+
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto overflow-x-hidden">
+          <DialogHeader>
+            <DialogTitle>Exported React Component</DialogTitle>
+          </DialogHeader>
+
+          <Button
+            onClick={() =>
+              navigator.clipboard.writeText(exportedComponent).then(() => {
+                toast.success("Component copied to clipboard!");
+              })
+            }
+            className="space-x-2 w-fit"
+          >
+            <Copy size={16} />
+            <span>Copy to Clipboard</span>
+          </Button>
+          <pre className="bg-gray-100 p-4 rounded-md text-wrap">
+            <code>{exportedComponent}</code>
+          </pre>
+
+          <div className="mt-4 flex justify-end">
+            <Button
+              onClick={copyToClipboard}
+              className="flex items-center space-x-2"
+            >
+              <Copy size={16} />
+              <span>Copy to Clipboard</span>
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
