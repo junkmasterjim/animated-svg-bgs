@@ -204,8 +204,6 @@ const Page = () => {
     setIsDialogOpen(true);
   };
 
-  const copyToClipboard = () => {};
-
   return (
     <div className="min-h-screen flex flex-col items-center justify-center relative p-4 overflow-hidden">
       <svg
